@@ -33,13 +33,24 @@ source .venv-lab-mac/bin/activate
 # 2. Install dependencies
 pip install -r examples/lab-mac/requirements.txt
 
-# 3. Run a smoke test (20 steps, ~5 min on M5 Pro)
+# 3. Run a smoke test (20 steps, ~3-5 min on M5 Pro)
 python examples/lab-mac/train_sft_lora.py examples/lab-mac/qwen25-0.5b-lora.yaml
 
 # 4. (Optional) Override settings via CLI
 python examples/lab-mac/train_sft_lora.py examples/lab-mac/qwen25-0.5b-lora.yaml \
     --max_steps=50 \
     --learning_rate=5e-5
+```
+
+The default config uses conservative settings (`max_length=512`, `batch_size=1`) to avoid
+OOM when macOS has other apps open. With more free memory, you can increase throughput:
+
+```bash
+# Faster settings if you have 32GB+ and few other apps running
+python examples/lab-mac/train_sft_lora.py examples/lab-mac/qwen25-0.5b-lora.yaml \
+    --max_length=1024 \
+    --per_device_train_batch_size=2 \
+    --gradient_accumulation_steps=4
 ```
 
 ## What's Included
@@ -91,14 +102,31 @@ merged.save_pretrained("my-merged-model")
 - Ensure you're on macOS 13+ with Apple Silicon
 - Check: `python -c "import torch; print(torch.backends.mps.is_available())"`
 
-**Out of memory**
-- Reduce `per_device_train_batch_size` to 1
-- Reduce `max_length` to 1024 or 512
-- Use the 0.5B model instead of 1.5B
+**Out of memory (MPS backend out of memory)**
+
+MPS shares unified memory with macOS and other apps. The error looks like:
+```
+RuntimeError: MPS backend out of memory (MPS allocated: X GiB, other allocations: Y GiB, max allowed: Z GiB)
+```
+
+Fixes:
+1. **Close other apps** — browsers, Slack, Docker, etc. consume unified memory
+2. **Use the conservative defaults** — the 0.5B config now ships with `max_length=512` and `batch_size=1`
+3. **Reduce further if needed:**
+   ```bash
+   python examples/lab-mac/train_sft_lora.py examples/lab-mac/qwen25-0.5b-lora.yaml \
+       --max_length=256 \
+       --per_device_train_batch_size=1
+   ```
+4. **Use the 0.5B model** — the 1.5B config needs 32GB+ with minimal other apps
+
+The default config is tuned for a 48GB M5 Pro with typical desktop load. Machines with
+16GB unified memory should stick to `max_length=256-512` and `batch_size=1`.
 
 **Slow training**
 - MPS is slower than CUDA; expect ~10–30 tok/s on M5 Pro with 0.5B
 - Gradient checkpointing is enabled by default to save memory
+- Shorter sequences (`max_length=512`) train faster than longer ones
 
 ## See Also
 
