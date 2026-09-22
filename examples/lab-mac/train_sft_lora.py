@@ -227,7 +227,7 @@ Examples:
     print("Loading model...")
     model = AutoModelForCausalLM.from_pretrained(
         config.model_name_or_path,
-        torch_dtype=torch.float32,
+        dtype=torch.float32,
         device_map=None,
         trust_remote_code=True,
         attn_implementation="sdpa",
@@ -301,7 +301,7 @@ Examples:
         args=training_args,
         train_dataset=tokenized_dataset,
         data_collator=data_collator,
-        tokenizer=tokenizer,
+        processing_class=tokenizer,
     )
 
     print()
