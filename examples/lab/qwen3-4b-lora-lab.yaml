@@ -1,0 +1,79 @@
+# LAB OVERLAY — Tiny SFT LoRA config for learning/testing on a small CUDA GPU.
+#
+# REQUIRES: A real NVIDIA GPU with CUDA support (Ampere/Ada, 24+ GB VRAM recommended).
+# DOES NOT WORK ON: Apple Silicon, GeForce 710M, or any host without torch.cuda.is_available().
+#
+# This config is derived from examples/sft/qwen3/qwen3-4b-ultrachat-lora.yaml with reduced
+# batch size, fewer steps, and local-only logging. It exists to verify the training loop
+# runs on a small GPU, not to produce a useful model.
+#
+# Preflight:
+#   python scripts/preflight/cuda_check.py
+#
+# Launch (inside halo:blackwell container):
+#   python scripts/training/sft.py examples/lab/qwen3-4b-lora-lab.yaml
+
+# --- Model ---
+model_name_or_path: Qwen/Qwen3-4B-Instruct-2507
+attn_implementation: flash_attention_2
+
+# --- Dataset (small slice for quick iteration) ---
+dataset:
+- HuggingFaceH4/ultrachat_200k@train_sft
+conversation_field: messages
+assistant_message_template: "<|im_start|>assistant\n"
+test_size: 0.1
+max_train_samples: 500
+max_eval_samples: 50
+
+# --- LoRA ---
+use_peft: true
+lora_r: 32
+lora_alpha: 64
+lora_dropout: 0.05
+lora_target_modules:
+- q_proj
+- k_proj
+- v_proj
+- o_proj
+- gate_proj
+- up_proj
+- down_proj
+lora_task_type: CAUSAL_LM
+
+# --- Training (minimal for verification) ---
+per_device_train_batch_size: 1
+per_device_eval_batch_size: 1
+max_steps: 50
+gradient_accumulation_steps: 4
+gradient_checkpointing: true
+gradient_checkpointing_kwargs:
+  use_reentrant: false
+optim: adamw_torch_fused
+learning_rate: 2.0e-04
+max_grad_norm: 1.0
+lr_scheduler_type: cosine
+warmup_steps: 5
+seed: 42
+
+# --- Sequence Length & Packing ---
+max_length: 2048
+packing: true
+
+# --- Output ---
+output_dir: checkpoints/lab-qwen3-4b-lora
+save_strategy: steps
+save_steps: 25
+eval_strategy: steps
+eval_steps: 25
+save_total_limit: 2
+save_only_model: true
+
+# --- Logging (local only, no W&B) ---
+logging_steps: 5
+logging_first_step: true
+report_to: none
+
+# --- Data ---
+dataloader_num_workers: 2
+remove_unused_columns: true
