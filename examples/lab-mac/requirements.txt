@@ -1,0 +1,27 @@
+# Mac Lab — Apple Silicon SFT/LoRA Training
+# Install: pip install -r examples/lab-mac/requirements.txt
+#
+# NOTE: This is NOT the Halo CUDA stack. These are host-native packages
+# for MPS-based training on Apple Silicon.
+
+# Core training stack (no CUDA)
+torch>=2.3.0
+transformers>=4.45.0
+datasets>=3.0.0
+peft>=0.13.0
+accelerate>=1.0.0
+
+# Tokenizers and utilities
+tokenizers>=0.20.0
+safetensors>=0.4.0
+sentencepiece>=0.2.0
+
+# Config parsing
+pyyaml>=6.0
+
+# Progress and logging
+tqdm>=4.66.0
+rich>=13.0.0
+
+# Optional: Weights & Biases (disabled by default in configs)
+# wandb>=0.18.0
