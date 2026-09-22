@@ -1,0 +1,53 @@
+# Mac Lab — Qwen2.5-0.5B-Instruct LoRA on UltraChat
+#
+# NOT White Circle Halo CUDA training. This is a fork-local lab config
+# for Apple Silicon experimentation using PyTorch MPS.
+#
+# Launch:
+#   python examples/lab-mac/train_sft_lora.py examples/lab-mac/qwen25-0.5b-lora.yaml
+#
+# Memory: ~8GB unified on Apple Silicon
+# Time: ~5 min for 20 steps on M5 Pro
+
+# --- Model ---
+model_name_or_path: Qwen/Qwen2.5-0.5B-Instruct
+
+# --- Dataset ---
+dataset_name: HuggingFaceH4/ultrachat_200k
+dataset_split: "train_sft[:1000]"
+conversation_field: messages
+
+# --- Sequence Length ---
+max_length: 2048
+
+# --- LoRA ---
+lora_r: 16
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target_modules:
+  - q_proj
+  - k_proj
+  - v_proj
+  - o_proj
+
+# --- Training ---
+max_steps: 20
+per_device_train_batch_size: 2
+gradient_accumulation_steps: 4
+learning_rate: 1.0e-04
+warmup_steps: 5
+weight_decay: 0.01
+lr_scheduler_type: cosine
+seed: 42
+
+# --- Memory ---
+gradient_checkpointing: true
+
+# --- Output ---
+output_dir: ""  # auto-generated with timestamp
+save_steps: 10
+save_total_limit: 2
+
+# --- Logging ---
+logging_steps: 1
+report_to: none  # set to "wandb" if you want W&B tracking
