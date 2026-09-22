@@ -6,8 +6,12 @@
 # Launch:
 #   python examples/lab-mac/train_sft_lora.py examples/lab-mac/qwen25-0.5b-lora.yaml
 #
-# Memory: ~8GB unified on Apple Silicon
-# Time: ~5 min for 20 steps on M5 Pro
+# Memory: ~6-8GB unified on Apple Silicon (conservative defaults)
+# Time: ~3-5 min for 20 steps on M5 Pro
+#
+# NOTE: Default max_length=512 and batch_size=1 are conservative to avoid OOM
+# when macOS has other apps open. For faster runs with more free memory, try:
+#   --max_length=1024 --per_device_train_batch_size=2 --gradient_accumulation_steps=4
 
 # --- Model ---
 model_name_or_path: Qwen/Qwen2.5-0.5B-Instruct
@@ -18,7 +22,7 @@ dataset_split: "train_sft[:1000]"
 conversation_field: messages
 
 # --- Sequence Length ---
-max_length: 2048
+max_length: 512  # conservative; 1024-2048 possible with more free memory
 
 # --- LoRA ---
 lora_r: 16
@@ -32,8 +36,8 @@ lora_target_modules:
 
 # --- Training ---
 max_steps: 20
-per_device_train_batch_size: 2
-gradient_accumulation_steps: 4
+per_device_train_batch_size: 1  # conservative; 2 possible with more free memory
+gradient_accumulation_steps: 8  # keeps effective batch size at 8
 learning_rate: 1.0e-04
 warmup_steps: 5
 weight_decay: 0.01
