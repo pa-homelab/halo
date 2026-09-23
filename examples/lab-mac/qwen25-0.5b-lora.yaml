@@ -25,6 +25,7 @@ conversation_field: messages
 max_length: 512  # conservative; 1024-2048 possible with more free memory
 
 # --- LoRA ---
+# For stronger capacity, try: --lora_r=32 --lora_alpha=64 (validated 100-step run)
 lora_r: 16
 lora_alpha: 32
 lora_dropout: 0.05

@@ -67,10 +67,15 @@ python examples/lab-mac/train_sft_lora.py examples/lab-mac/qwen25-0.5b-lora.yaml
 | Model | Parameters | Memory | Notes |
 |-------|------------|--------|-------|
 | **Qwen2.5-0.5B-Instruct** | 0.5B | ~8GB | Default; fast iteration |
-| Qwen2.5-1.5B-Instruct | 1.5B | ~16GB | Better quality; slower |
+| Qwen2.5-1.5B-Instruct | 1.5B | ~12-14GB | Better quality; uses `max_length=512` by default |
 
 The 0.5B model is the default for first prove-out. Edit the config or pass
 `--model_name_or_path=Qwen/Qwen2.5-1.5B-Instruct` to use the larger model.
+
+**Memory notes (validated on 48GB M5 Pro):**
+- 1.5B uses `max_length=512` by default — `max_length=2048` OOMs under typical desktop load
+- 0.5B with `max_length=1024 --per_device_train_batch_size=2` can OOM mid-run when other apps are open
+- Close browsers/Slack/Docker before trying higher settings
 
 ## What This Does NOT Support
 

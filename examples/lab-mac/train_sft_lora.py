@@ -40,10 +40,10 @@ class LabMacConfig:
     dataset_split: str = "train_sft[:1000]"
     conversation_field: str = "messages"
 
-    max_length: int = 2048
+    max_length: int = 512
     max_steps: int = 20
-    per_device_train_batch_size: int = 2
-    gradient_accumulation_steps: int = 4
+    per_device_train_batch_size: int = 1
+    gradient_accumulation_steps: int = 8
     learning_rate: float = 1e-4
     warmup_steps: int = 5
     weight_decay: float = 0.01
