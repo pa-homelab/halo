@@ -6,8 +6,11 @@
 # Launch:
 #   python examples/lab-mac/train_sft_lora.py examples/lab-mac/qwen25-1.5b-lora.yaml
 #
-# Memory: ~16GB unified on Apple Silicon (32GB+ recommended)
-# Time: ~15 min for 20 steps on M5 Pro
+# Memory: ~12-14GB unified on Apple Silicon with max_length=512 (32GB+ recommended)
+# Time: ~8-10 min for 20 steps on M5 Pro
+#
+# NOTE: max_length=2048 OOMs under typical desktop load even on 48GB.
+# Use 512 by default; increase only with most apps closed.
 
 # --- Model ---
 model_name_or_path: Qwen/Qwen2.5-1.5B-Instruct
@@ -18,7 +21,7 @@ dataset_split: "train_sft[:1000]"
 conversation_field: messages
 
 # --- Sequence Length ---
-max_length: 2048
+max_length: 512  # 2048 OOMs under typical desktop load; increase only with apps closed
 
 # --- LoRA ---
 lora_r: 16
